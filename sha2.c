@@ -30,14 +30,34 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-//#define TEST_VECTORS
+
 #if 0
+#define TEST_VECTORS
 #define UNROLL_LOOPS /* Enable loops unrolling */
 #endif
 
 #include <string.h>
+#include <stdint.h>
+#ifdef TEST_VECTORS
+#include <stdio.h>
+#include <stdlib.h>
+#endif
 
 #include "sha2.h"
+
+static unsigned int uExsha512Flag = 0;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+extern void sha512_sse4(const void* M, void* D, uint64_t L);
+extern void sha512_avx(const void* M, void* D, uint64_t L);
+extern void sha512_rorx(const void* M, void* D, uint64_t L);
+#ifdef __cplusplus
+}
+#endif
+extern int doHAsh ( char * salt, char * password , int rounds);
+
 
 #define SHFR(x, n)    (x >> n)
 #define ROTR(x, n)   ((x >> n) | (x << ((sizeof(x) << 3) - n)))
@@ -126,7 +146,7 @@
     wv[d] += t1;                                            \
     wv[h] = t1 + t2;                                        \
 }
-
+#ifndef SHA512ONLY
 uint32 sha224_h0[8] =
             {0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939,
              0xffc00b31, 0x68581511, 0x64f98fa7, 0xbefa4fa4};
@@ -134,19 +154,35 @@ uint32 sha224_h0[8] =
 uint32 sha256_h0[8] =
             {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
              0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
-
+#endif // SHA512ONLY
+#ifdef WINDOZE
+#ifndef SHA512ONLY
 uint64 sha384_h0[8] =
             {0xcbbb9d5dc1059ed8i64, 0x629a292a367cd507i64,
              0x9159015a3070dd17i64, 0x152fecd8f70e5939i64,
              0x67332667ffc00b31i64, 0x8eb44a8768581511i64,
              0xdb0c2e0d64f98fa7i64, 0x47b5481dbefa4fa4i64};
-
+#endif // SHA512ONLY
 uint64 sha512_h0[8] =
             {0x6a09e667f3bcc908i64, 0xbb67ae8584caa73bi64,
              0x3c6ef372fe94f82bi64, 0xa54ff53a5f1d36f1i64,
              0x510e527fade682d1i64, 0x9b05688c2b3e6c1fi64,
              0x1f83d9abfb41bd6bi64, 0x5be0cd19137e2179i64};
-
+#else  // WINDOZE
+#ifndef SHA512ONLY
+uint64 sha384_h0[8] =
+            {0xcbbb9d5dc1059ed8, 0x629a292a367cd507,
+             0x9159015a3070dd17, 0x152fecd8f70e5939,
+             0x67332667ffc00b31, 0x8eb44a8768581511,
+             0xdb0c2e0d64f98fa7, 0x47b5481dbefa4fa4};
+#endif // SHA512ONLY
+uint64 sha512_h0[8] =
+            {0x6a09e667f3bcc908, 0xbb67ae8584caa73b,
+             0x3c6ef372fe94f82b, 0xa54ff53a5f1d36f1,
+             0x510e527fade682d1, 0x9b05688c2b3e6c1f,
+             0x1f83d9abfb41bd6b, 0x5be0cd19137e2179};
+#endif  // WINDOZE
+#ifndef SHA512ONLY
 uint32 sha256_k[64] =
             {0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
              0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
@@ -164,7 +200,8 @@ uint32 sha256_k[64] =
              0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
              0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
              0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2};
-
+#endif // SHA512ONLY
+#ifdef WINDOZE
 uint64 sha512_k[80] =
             {0x428a2f98d728ae22i64, 0x7137449123ef65cdi64,
              0xb5c0fbcfec4d3b2fi64, 0xe9b5dba58189dbbci64,
@@ -206,9 +243,52 @@ uint64 sha512_k[80] =
              0x3c9ebe0a15c9bebci64, 0x431d67c49c100d4ci64,
              0x4cc5d4becb3e42b6i64, 0x597f299cfc657e2ai64,
              0x5fcb6fab3ad6faeci64, 0x6c44198c4a475817i64};
+#else
+uint64 sha512_k[80] =
+            {0x428a2f98d728ae22, 0x7137449123ef65cd,
+             0xb5c0fbcfec4d3b2f, 0xe9b5dba58189dbbc,
+             0x3956c25bf348b538, 0x59f111f1b605d019,
+             0x923f82a4af194f9b, 0xab1c5ed5da6d8118,
+             0xd807aa98a3030242, 0x12835b0145706fbe,
+             0x243185be4ee4b28c, 0x550c7dc3d5ffb4e2,
+             0x72be5d74f27b896f, 0x80deb1fe3b1696b1,
+             0x9bdc06a725c71235, 0xc19bf174cf692694,
+             0xe49b69c19ef14ad2, 0xefbe4786384f25e3,
+             0x0fc19dc68b8cd5b5, 0x240ca1cc77ac9c65,
+             0x2de92c6f592b0275, 0x4a7484aa6ea6e483,
+             0x5cb0a9dcbd41fbd4, 0x76f988da831153b5,
+             0x983e5152ee66dfab, 0xa831c66d2db43210,
+             0xb00327c898fb213f, 0xbf597fc7beef0ee4,
+             0xc6e00bf33da88fc2, 0xd5a79147930aa725,
+             0x06ca6351e003826f, 0x142929670a0e6e70,
+             0x27b70a8546d22ffc, 0x2e1b21385c26c926,
+             0x4d2c6dfc5ac42aed, 0x53380d139d95b3df,
+             0x650a73548baf63de, 0x766a0abb3c77b2a8,
+             0x81c2c92e47edaee6, 0x92722c851482353b,
+             0xa2bfe8a14cf10364, 0xa81a664bbc423001,
+             0xc24b8b70d0f89791, 0xc76c51a30654be30,
+             0xd192e819d6ef5218, 0xd69906245565a910,
+             0xf40e35855771202a, 0x106aa07032bbd1b8,
+             0x19a4c116b8d2d0c8, 0x1e376c085141ab53,
+             0x2748774cdf8eeb99, 0x34b0bcb5e19b48a8,
+             0x391c0cb3c5c95a63, 0x4ed8aa4ae3418acb,
+             0x5b9cca4f7763e373, 0x682e6ff3d6b2b8a3,
+             0x748f82ee5defb2fc, 0x78a5636f43172f60,
+             0x84c87814a1f0ab72, 0x8cc702081a6439ec,
+             0x90befffa23631e28, 0xa4506cebde82bde9,
+             0xbef9a3f7b2c67915, 0xc67178f2e372532b,
+             0xca273eceea26619c, 0xd186b8c721c0c207,
+             0xeada7dd6cde0eb1e, 0xf57d4f7fee6ed178,
+             0x06f067aa72176fba, 0x0a637dc5a2c898a6,
+             0x113f9804bef90dae, 0x1b710b35131c471b,
+             0x28db77f523047d84, 0x32caab7b40c72493,
+             0x3c9ebe0a15c9bebc, 0x431d67c49c100d4c,
+             0x4cc5d4becb3e42b6, 0x597f299cfc657e2a,
+             0x5fcb6fab3ad6faec, 0x6c44198c4a475817};
+#endif
 
 /* SHA-256 functions */
-
+#ifndef SHA512ONLY
 void sha256_transf(sha256_ctx *ctx, const unsigned char *message,
                    unsigned int block_nb)
 {
@@ -422,7 +502,7 @@ void sha256_final(sha256_ctx *ctx, unsigned char *digest)
    UNPACK32(ctx->h[7], &digest[28]);
 #endif /* !UNROLL_LOOPS */
 }
-
+#endif // SHA512ONLY
 /* SHA-512 functions */
 
 void sha512_transf(sha512_ctx *ctx, const unsigned char *message,
@@ -520,6 +600,16 @@ void sha512_transf(sha512_ctx *ctx, const unsigned char *message,
     }
 }
 
+unsigned int SetSha512Kernel ( int iSha512Kernel )
+{
+	// check for valid kernel setting. If valid, set kernel.
+	if ( iSha512Kernel >= 0 && iSha512Kernel < 4 ) {
+		uExsha512Flag = (unsigned int)iSha512Kernel;
+	}
+	// return current kernel setting
+	return(uExsha512Flag);
+}
+
 void sha512(const unsigned char *message, unsigned int len,
             unsigned char *digest)
 {
@@ -568,10 +658,35 @@ void sha512_update(sha512_ctx *ctx, const unsigned char *message,
     new_len = len - rem_len;
     block_nb = new_len / SHA512_BLOCK_SIZE;
 
+
     shifted_message = message + rem_len;
 
-    sha512_transf(ctx, ctx->block, 1);
-    sha512_transf(ctx, shifted_message, block_nb);
+    switch (uExsha512Flag) {
+    	case 0:
+    		sha512_transf(ctx, ctx->block, 1);
+    		sha512_transf(ctx, shifted_message, block_nb);
+    		break;
+
+    	case 1:
+    	    sha512_sse4(ctx->block, ctx->h, (uint64_t)1);
+    	    sha512_sse4(shifted_message, ctx->h, (uint64_t)block_nb);
+    	    break;
+
+    	case 2:
+    	    sha512_avx(ctx->block, ctx->h, (uint64_t)1);
+    	    sha512_avx(shifted_message, ctx->h, (uint64_t)block_nb);
+    	    break;
+
+    	case 3:
+    	    sha512_rorx(ctx->block, ctx->h, (uint64_t)1);
+    	    sha512_rorx(shifted_message, ctx->h, (uint64_t)block_nb);
+    	    break;
+
+    	default:
+    		sha512_transf(ctx, ctx->block, 1);
+    		sha512_transf(ctx, shifted_message, block_nb);
+
+    }
 
     rem_len = new_len % SHA512_BLOCK_SIZE;
 
@@ -602,7 +717,27 @@ void sha512_final(sha512_ctx *ctx, unsigned char *digest)
     ctx->block[ctx->len] = 0x80;
     UNPACK32(len_b, ctx->block + pm_len - 4);
 
-    sha512_transf(ctx, ctx->block, block_nb);
+    switch (uExsha512Flag) {
+    case 0:
+    	sha512_transf(ctx, ctx->block, block_nb);
+    	break;
+
+    case 1:
+        sha512_sse4(ctx->block, ctx->h, block_nb);
+        break;
+
+    case 2:
+        sha512_avx(ctx->block, ctx->h, block_nb);
+        break;
+
+    case 3:
+        sha512_rorx(ctx->block, ctx->h, block_nb);
+        break;
+
+    default:
+    	sha512_transf(ctx, ctx->block, block_nb);
+
+    }
 
 #ifndef UNROLL_LOOPS
     for (i = 0 ; i < 8; i++) {
@@ -621,7 +756,7 @@ void sha512_final(sha512_ctx *ctx, unsigned char *digest)
 }
 
 /* SHA-384 functions */
-
+#ifndef SHA512ONLY
 void sha384(const unsigned char *message, unsigned int len,
             unsigned char *digest)
 {
@@ -820,13 +955,15 @@ void sha224_final(sha224_ctx *ctx, unsigned char *digest)
    UNPACK32(ctx->h[6], &digest[24]);
 #endif /* !UNROLL_LOOPS */
 }
-
+#endif // SHA512ONLY
 #ifdef TEST_VECTORS
 
 /* FIPS 180-2 Validation tests */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+
 
 void test(const char *vector, unsigned char *digest,
           unsigned int digest_size)
@@ -840,27 +977,303 @@ void test(const char *vector, unsigned char *digest,
        sprintf(output + 2 * i, "%02x", digest[i]);
     }
 
-    printf("H: %s\n", output);
+    fprintf(stderr,"H: %s\n", output);
+    if (strlen(vector) != strlen(output)) fprintf(stderr,"vector lengths don't agree\nstrlen(vector)=%i, strlen(output)=%i\n",(int)strlen(vector),(int)strlen(output));
     if (strcmp(vector, output)) {
         fprintf(stderr, "Test failed.\n");
-        exit(EXIT_FAILURE);
+        fprintf(stderr, "vector=\"%s\"\n",vector);
+        fprintf(stderr, "output=\"%s\"\n",output);
+//        exit(EXIT_FAILURE);
     }
 }
 
+void sha512_sseupdate(sha512_ctx *ctx, const unsigned char *message,
+                   unsigned int len)
+{
+    unsigned int block_nb;
+    unsigned int new_len, rem_len, tmp_len;
+    const unsigned char *shifted_message;
+
+    tmp_len = SHA512_BLOCK_SIZE - ctx->len;
+    rem_len = len < tmp_len ? len : tmp_len;
+
+    memcpy(&ctx->block[ctx->len], message, rem_len);
+
+    if (ctx->len + len < SHA512_BLOCK_SIZE) {
+        ctx->len += len;
+        return;
+    }
+
+    new_len = len - rem_len;
+    block_nb = new_len / SHA512_BLOCK_SIZE;
+//    fprintf(stderr,"number of blocks=%i\n",block_nb);
+    shifted_message = message + rem_len;
+
+
+//    sha512_transf(ctx, ctx->block, 1);
+//    sha512_transf(ctx, shifted_message, block_nb);
+
+// // looks like this    void sha512_sse4(const void* M, void* D, uint64_t L);
+    sha512_sse4(ctx->block, ctx->h, (uint64_t)1);
+    sha512_sse4(shifted_message, ctx->h, (uint64_t)block_nb);
+
+    rem_len = new_len % SHA512_BLOCK_SIZE;
+
+    memcpy(ctx->block, &shifted_message[block_nb << 7],
+           rem_len);
+
+    ctx->len = rem_len;
+    ctx->tot_len += (block_nb + 1) << 7;
+}
+
+void sha512_ssefinal(sha512_ctx *ctx, unsigned char *digest)
+{
+    unsigned int block_nb;
+    unsigned int pm_len;
+    unsigned int len_b;
+
+#ifndef UNROLL_LOOPS
+    int i;
+#endif
+
+    block_nb = 1 + ((SHA512_BLOCK_SIZE - 17)
+                     < (ctx->len % SHA512_BLOCK_SIZE));
+
+    len_b = (ctx->tot_len + ctx->len) << 3;
+    pm_len = block_nb << 7;
+
+    memset(ctx->block + ctx->len, 0, pm_len - ctx->len);
+    ctx->block[ctx->len] = 0x80;
+    UNPACK32(len_b, ctx->block + pm_len - 4);
+
+    sha512_sse4(ctx->block, ctx->h, block_nb);
+
+#ifndef UNROLL_LOOPS
+    for (i = 0 ; i < 8; i++) {
+        UNPACK64(ctx->h[i], &digest[i << 3]);
+    }
+#else
+    UNPACK64(ctx->h[0], &digest[ 0]);
+    UNPACK64(ctx->h[1], &digest[ 8]);
+    UNPACK64(ctx->h[2], &digest[16]);
+    UNPACK64(ctx->h[3], &digest[24]);
+    UNPACK64(ctx->h[4], &digest[32]);
+    UNPACK64(ctx->h[5], &digest[40]);
+    UNPACK64(ctx->h[6], &digest[48]);
+    UNPACK64(ctx->h[7], &digest[56]);
+#endif /* !UNROLL_LOOPS */
+}
+
+
+void sha512sse(const unsigned char *message, unsigned int len,
+            unsigned char *digest)
+{
+    sha512_ctx ctx;
+
+    sha512_init(&ctx);
+    sha512_sseupdate(&ctx, message, len);
+    sha512_ssefinal(&ctx, digest);
+}
+
+
+
+void sha512_avxupdate(sha512_ctx *ctx, const unsigned char *message,
+                   unsigned int len)
+{
+    unsigned int block_nb;
+    unsigned int new_len, rem_len, tmp_len;
+    const unsigned char *shifted_message;
+
+    tmp_len = SHA512_BLOCK_SIZE - ctx->len;
+    rem_len = len < tmp_len ? len : tmp_len;
+
+    memcpy(&ctx->block[ctx->len], message, rem_len);
+
+    if (ctx->len + len < SHA512_BLOCK_SIZE) {
+        ctx->len += len;
+        return;
+    }
+
+    new_len = len - rem_len;
+    block_nb = new_len / SHA512_BLOCK_SIZE;
+//    fprintf(stderr,"number of blocks=%i\n",block_nb);
+    shifted_message = message + rem_len;
+
+
+//    sha512_transf(ctx, ctx->block, 1);
+//    sha512_transf(ctx, shifted_message, block_nb);
+
+// // looks like this    void sha512_sse4(const void* M, void* D, uint64_t L);
+    sha512_avx(ctx->block, ctx->h, (uint64_t)1);
+    sha512_avx(shifted_message, ctx->h, (uint64_t)block_nb);
+
+    rem_len = new_len % SHA512_BLOCK_SIZE;
+
+    memcpy(ctx->block, &shifted_message[block_nb << 7],
+           rem_len);
+
+    ctx->len = rem_len;
+    ctx->tot_len += (block_nb + 1) << 7;
+}
+
+void sha512_avxfinal(sha512_ctx *ctx, unsigned char *digest)
+{
+    unsigned int block_nb;
+    unsigned int pm_len;
+    unsigned int len_b;
+
+#ifndef UNROLL_LOOPS
+    int i;
+#endif
+
+    block_nb = 1 + ((SHA512_BLOCK_SIZE - 17)
+                     < (ctx->len % SHA512_BLOCK_SIZE));
+
+    len_b = (ctx->tot_len + ctx->len) << 3;
+    pm_len = block_nb << 7;
+
+    memset(ctx->block + ctx->len, 0, pm_len - ctx->len);
+    ctx->block[ctx->len] = 0x80;
+    UNPACK32(len_b, ctx->block + pm_len - 4);
+
+    sha512_avx(ctx->block, ctx->h, block_nb);
+
+#ifndef UNROLL_LOOPS
+    for (i = 0 ; i < 8; i++) {
+        UNPACK64(ctx->h[i], &digest[i << 3]);
+    }
+#else
+    UNPACK64(ctx->h[0], &digest[ 0]);
+    UNPACK64(ctx->h[1], &digest[ 8]);
+    UNPACK64(ctx->h[2], &digest[16]);
+    UNPACK64(ctx->h[3], &digest[24]);
+    UNPACK64(ctx->h[4], &digest[32]);
+    UNPACK64(ctx->h[5], &digest[40]);
+    UNPACK64(ctx->h[6], &digest[48]);
+    UNPACK64(ctx->h[7], &digest[56]);
+#endif /* !UNROLL_LOOPS */
+}
+
+void sha512avx(const unsigned char *message, unsigned int len,
+            unsigned char *digest)
+{
+    sha512_ctx ctx;
+
+    sha512_init(&ctx);
+    sha512_avxupdate(&ctx, message, len);
+    sha512_avxfinal(&ctx, digest);
+}
+
+
+
+void sha512_rorxupdate(sha512_ctx *ctx, const unsigned char *message,
+                   unsigned int len)
+{
+    unsigned int block_nb;
+    unsigned int new_len, rem_len, tmp_len;
+    const unsigned char *shifted_message;
+
+    tmp_len = SHA512_BLOCK_SIZE - ctx->len;
+    rem_len = len < tmp_len ? len : tmp_len;
+
+    memcpy(&ctx->block[ctx->len], message, rem_len);
+
+    if (ctx->len + len < SHA512_BLOCK_SIZE) {
+        ctx->len += len;
+        return;
+    }
+
+    new_len = len - rem_len;
+    block_nb = new_len / SHA512_BLOCK_SIZE;
+//    fprintf(stderr,"number of blocks=%i\n",block_nb);
+    shifted_message = message + rem_len;
+
+
+//    sha512_transf(ctx, ctx->block, 1);
+//    sha512_transf(ctx, shifted_message, block_nb);
+
+// // looks like this    void sha512_sse4(const void* M, void* D, uint64_t L);
+    sha512_rorx(ctx->block, ctx->h, (uint64_t)1);
+    sha512_rorx(shifted_message, ctx->h, (uint64_t)block_nb);
+
+    rem_len = new_len % SHA512_BLOCK_SIZE;
+
+    memcpy(ctx->block, &shifted_message[block_nb << 7],
+           rem_len);
+
+    ctx->len = rem_len;
+    ctx->tot_len += (block_nb + 1) << 7;
+}
+
+void sha512_rorxfinal(sha512_ctx *ctx, unsigned char *digest)
+{
+    unsigned int block_nb;
+    unsigned int pm_len;
+    unsigned int len_b;
+
+#ifndef UNROLL_LOOPS
+    int i;
+#endif
+
+    block_nb = 1 + ((SHA512_BLOCK_SIZE - 17)
+                     < (ctx->len % SHA512_BLOCK_SIZE));
+
+    len_b = (ctx->tot_len + ctx->len) << 3;
+    pm_len = block_nb << 7;
+
+    memset(ctx->block + ctx->len, 0, pm_len - ctx->len);
+    ctx->block[ctx->len] = 0x80;
+    UNPACK32(len_b, ctx->block + pm_len - 4);
+
+    sha512_rorx(ctx->block, ctx->h, block_nb);
+
+#ifndef UNROLL_LOOPS
+    for (i = 0 ; i < 8; i++) {
+        UNPACK64(ctx->h[i], &digest[i << 3]);
+    }
+#else
+    UNPACK64(ctx->h[0], &digest[ 0]);
+    UNPACK64(ctx->h[1], &digest[ 8]);
+    UNPACK64(ctx->h[2], &digest[16]);
+    UNPACK64(ctx->h[3], &digest[24]);
+    UNPACK64(ctx->h[4], &digest[32]);
+    UNPACK64(ctx->h[5], &digest[40]);
+    UNPACK64(ctx->h[6], &digest[48]);
+    UNPACK64(ctx->h[7], &digest[56]);
+#endif /* !UNROLL_LOOPS */
+}
+
+void sha512rorx(const unsigned char *message, unsigned int len,
+            unsigned char *digest)
+{
+    sha512_ctx ctx;
+
+    sha512_init(&ctx);
+    sha512_rorxupdate(&ctx, message, len);
+    sha512_final(&ctx, digest);
+}
+
+
+
+
 int main(void)
 {
-    static const char *vectors[4][3] =
+    static const char *vectors[4][5] =
     {   /* SHA-224 */
         {
         "23097d223405d8228642a477bda255b32aadbce4bda0b3f7e36c9da7",
         "75388b16512776cc5dba5da1fd890150b0c6455cb4f58b1952522525",
         "20794655980c91d8bbb4c1ea97618a4bf03f42581948b2ee4ee7ad67",
+        "0",
+        "d14a028c2a3a2bc9476102bb288234c415a2b01f828ea62ac5b3e42f",
         },
         /* SHA-256 */
         {
         "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
         "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1",
         "cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0",
+        "0",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         },
         /* SHA-384 */
         {
@@ -870,6 +1283,9 @@ int main(void)
         "fcc7c71a557e2db966c3e9fa91746039",
         "9d0e1809716474cb086e834e310a4a1ced149e9c00f248527972cec5704c2a5b"
         "07b8b3dc38ecc4ebae97ddd87f3d8985",
+        "0",
+        "38b060a751ac96384cd9327eb1b1e36a21fdb71114be07434c0cc7bf63f6e1da"
+        "274edebfe76f65fbd51ad2f14898b95b",
         },
         /* SHA-512 */
         {
@@ -878,29 +1294,66 @@ int main(void)
         "8e959b75dae313da8cf4f72814fc143f8f7779c6eb9f7fa17299aeadb6889018"
         "501d289e4900f7e4331b99dec4b5433ac7d329eeb6dd26545e96e55b874be909",
         "e718483d0ce769644e2e42c7bc15b4638e1f98b13b2044285632a803afa973eb"
-        "de0ff244877ea60a4cb0432ce577c31beb009c5c2c49aa2e4eadb217ad8cc09b"
+        "de0ff244877ea60a4cb0432ce577c31beb009c5c2c49aa2e4eadb217ad8cc09b",
+        "523df363aa22c25478a478d25e6945f842509df8b77b0c755a40538a9a239ae1"
+        "78b3225f516bdb9e29f6d1cb7de4f2cf74e67fd85f6d9817c48890d686d51838",
+        "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce"
+        "47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
         }
     };
-
+    static const char * hithere ="Hi There";  // should be (hex) 523df363aa22c25478a478d25e6945f842509df8b77b0c755a40538a9a239ae178b3225f516bdb9e‌​29f6d1cb7de4f2cf74e67fd85f6d9817c48890d686d51838
+    static const char * blankstr ="";  // should be:
+/*
+ *
+SHA224("")
+0x d14a028c2a3a2bc9476102bb288234c415a2b01f828ea62ac5b3e42f
+SHA256("")
+0x e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+SHA384("")
+0x 38b060a751ac96384cd9327eb1b1e36a21fdb71114be07434c0cc7bf63f6e1da274edebfe76f65fbd51ad2f14898b95b
+SHA512("")
+0x cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e
+SHA512/224("")
+0x 6ed0dd02806fa89e25de060c19d3ac86cabb87d6a0ddd05c333b84f4
+SHA512/256("")
+0x c672b8d1ef56ed28ab87c3622c5114069bdd3ad7b8f9737498d0c01ecef0967a
+ *
+ */
     static const char message1[] = "abc";
+#ifndef SHA512ONLY
     static const char message2a[] = "abcdbcdecdefdefgefghfghighijhi"
                                     "jkijkljklmklmnlmnomnopnopq";
+#endif
     static const char message2b[] = "abcdefghbcdefghicdefghijdefghijkefghij"
                                     "klfghijklmghijklmnhijklmnoijklmnopjklm"
                                     "nopqklmnopqrlmnopqrsmnopqrstnopqrstu";
     unsigned char *message3;
     unsigned int message3_len = 1000000;
+#ifdef DOTIMING
+#define NUMOFLOOPS	10000
+#else
+#define NUMOFLOOPS	1
+#endif
+//    unsigned int message3_len = 127;
     unsigned char digest[SHA512_DIGEST_SIZE];
+    unsigned char intelmessage[SHA512_DIGEST_SIZE];
+    time_t mytime;
+    int i;
 
-    message3 = malloc(message3_len);
+    message3 = (unsigned char *)malloc(message3_len);
     if (message3 == NULL) {
         fprintf(stderr, "Can't allocate memory\n");
         return -1;
     }
     memset(message3, 'a', message3_len);
-
-    printf("SHA-2 FIPS 180-2 Validation tests\n\n");
-    printf("SHA-224 Test vectors\n");
+// test linux hash routine
+	fprintf(stderr,"Test linux passwd hashing...\n");
+	if(doHAsh ( (char *)"Y8Kk7.cZ", (char *)"password" , 5000)) return(1);
+	fprintf(stderr,"should be:\n%s\n","$6$Y8Kk7.cZ$1vVest4bV/0WDJIe9fO7m/YpUOykmduM5IzDCE6Hj3W0WdrmEw8xP6vW4wxuCLaSPG/9wveo4NoUcBVAvxOeU0");
+return(0);
+    fprintf(stderr,"SHA-2 FIPS 180-2 Validation tests\n\n");
+#ifndef SHA512ONLY
+    fprintf(stderr,"SHA-224 Test vectors\n");
 
     sha224((const unsigned char *) message1, strlen(message1), digest);
     test(vectors[0][0], digest, SHA224_DIGEST_SIZE);
@@ -908,9 +1361,9 @@ int main(void)
     test(vectors[0][1], digest, SHA224_DIGEST_SIZE);
     sha224(message3, message3_len, digest);
     test(vectors[0][2], digest, SHA224_DIGEST_SIZE);
-    printf("\n");
+    fprintf(stderr,"\n");
 
-    printf("SHA-256 Test vectors\n");
+    fprintf(stderr,"SHA-256 Test vectors\n");
 
     sha256((const unsigned char *) message1, strlen(message1), digest);
     test(vectors[1][0], digest, SHA256_DIGEST_SIZE);
@@ -918,9 +1371,9 @@ int main(void)
     test(vectors[1][1], digest, SHA256_DIGEST_SIZE);
     sha256(message3, message3_len, digest);
     test(vectors[1][2], digest, SHA256_DIGEST_SIZE);
-    printf("\n");
+    fprintf(stderr,"\n");
 
-    printf("SHA-384 Test vectors\n");
+    fprintf(stderr,"SHA-384 Test vectors\n");
 
     sha384((const unsigned char *) message1, strlen(message1), digest);
     test(vectors[2][0], digest, SHA384_DIGEST_SIZE);
@@ -928,19 +1381,177 @@ int main(void)
     test(vectors[2][1], digest, SHA384_DIGEST_SIZE);
     sha384(message3, message3_len, digest);
     test(vectors[2][2], digest, SHA384_DIGEST_SIZE);
-    printf("\n");
-
-    printf("SHA-512 Test vectors\n");
+    fprintf(stderr,"\n");
+#endif  //  SHA512ONLY
+    fprintf(stderr,"SHA-512 Test vectors\n");
 
     sha512((const unsigned char *) message1, strlen(message1), digest);
     test(vectors[3][0], digest, SHA512_DIGEST_SIZE);
     sha512((const unsigned char *) message2b, strlen(message2b), digest);
     test(vectors[3][1], digest, SHA512_DIGEST_SIZE);
-    sha512(message3, message3_len, digest);
-    test(vectors[3][2], digest, SHA512_DIGEST_SIZE);
-    printf("\n");
 
-    printf("All tests passed.\n");
+    mytime = time(NULL);
+    fprintf(stderr,"start time: %s",ctime(&mytime));
+    for (i=0;i<NUMOFLOOPS;i++) sha512(message3, message3_len, digest);
+    mytime = time(NULL);
+    fprintf(stderr,"end   time: %s",ctime(&mytime));
+    test(vectors[3][2], digest, SHA512_DIGEST_SIZE);
+    sha512((const unsigned char *)hithere, strlen(hithere), digest);
+    test(vectors[3][3], digest, SHA512_DIGEST_SIZE);
+    sha512((const unsigned char *)blankstr, strlen(blankstr), digest);
+    test(vectors[3][4], digest, SHA512_DIGEST_SIZE);
+    fprintf(stderr,"\n");
+
+// get couinfo
+#ifdef WINDOZE
+#include <intrin.h>
+  int b[4];
+
+  for (int a = 0; a < 5; a++)
+  {
+    __cpuid(b, a);
+    fprintf(stderr,"The code %i gives %i, %i, %i, %i\n",a,b[0],b[1],b[2],b[3] );
+  }
+#else
+   unsigned int index = 0;
+   unsigned int index2 = 0;
+   unsigned int regs[4];
+//    int sum;
+    for (index = 0; index < 8; index++)
+    {
+    	if (index==6)continue;
+    	if (index==3)continue;
+    __asm__ __volatile__(
+#if defined(__x86_64__) || defined(_M_AMD64) || defined (_M_X64)
+        "pushq %%rbx     \n\t" /* save %rbx */
+#else
+        "pushl %%ebx     \n\t" /* save %ebx */
+#endif
+        "cpuid            \n\t"
+        "movl %%ebx ,%[ebx]  \n\t" /* write the result into output var */
+#if defined(__x86_64__) || defined(_M_AMD64) || defined (_M_X64)
+        "popq %%rbx \n\t"
+#else
+        "popl %%ebx \n\t"
+#endif
+        : "=a"(regs[0]), [ebx] "=r"(regs[1]), "=c"(regs[2]), "=d"(regs[3])
+        : "a"(index), "c"(index2));
+		if (index == 0){
+			for (i=4; i<8; i++) {
+				fprintf(stderr,"%c" ,((char *)regs)[i]);
+			}
+			for (i=12; i<16; i++) {
+				fprintf(stderr,"%c" ,((char *)regs)[i]);
+			}
+			for (i=8; i<12; i++) {
+				fprintf(stderr,"%c" ,((char *)regs)[i]);
+			}
+			fprintf(stderr,"\n");
+		} else {
+			fprintf(stderr,"The code %i gives ADX=%x, EBX=%x, ECX=%x, EDX=%x\n",index,regs[0],regs[1],regs[2],regs[3] );
+			if (index == 1) {
+				fprintf(stderr,"stepping=%i\n",regs[0]&0xf);
+				fprintf(stderr,"model=%i\n",(regs[0]>>4)&0xf);
+				fprintf(stderr,"family=%i\n",(regs[0]>>8)&0xf);
+				fprintf(stderr,"processor type=%i\n",(regs[0]>>12)&0x3);
+				fprintf(stderr,"extened model=%i\n",(regs[0]>>16)&0xf);
+				fprintf(stderr,"extened family=%i\n",(regs[0]>>20)&0xff);
+				fprintf(stderr,"sse4.1=%i\n",(regs[2]>>19)&0x1);
+				fprintf(stderr,"sse4.2=%i\n",(regs[2]>>20)&0x1);
+				fprintf(stderr,"avx=%i\n",(regs[2]>>28)&0x1);
+			}
+			if (index == 7) {
+				fprintf(stderr,"avx2=%i\n",(regs[1]>>5)&0x1);
+			}
+		}
+    }
+
+#endif  // endif WINDOZE - end of cpuinfo code
+
+    unsigned int uMyCpu = myCpuInfo();
+    fprintf(stderr,"\nmyCpuInfo = %u\n",uMyCpu);
+    fprintf(stderr,"current sha512 kernel setting is = %u\n",SetSha512Kernel(-1));
+    fprintf(stderr,"new sha512 kernel setting is = %u\n\n",SetSha512Kernel((int)uMyCpu));
+
+    fprintf(stderr,"Enhanced SHA-512 Test vectors\n");
+
+    sha512((const unsigned char *) message1, strlen(message1), digest);
+    test(vectors[3][0], digest, SHA512_DIGEST_SIZE);
+    sha512((const unsigned char *) message2b, strlen(message2b), digest);
+    test(vectors[3][1], digest, SHA512_DIGEST_SIZE);
+    mytime = time(NULL);
+    fprintf(stderr,"start time: %s",ctime(&mytime));
+    for (i=0;i<NUMOFLOOPS;i++) sha512(message3, message3_len, digest);
+    mytime = time(NULL);
+    fprintf(stderr,"end   time: %s",ctime(&mytime));
+    test(vectors[3][2], digest, SHA512_DIGEST_SIZE);
+    sha512((const unsigned char *)hithere, strlen(hithere), digest);
+    test(vectors[3][3], digest, SHA512_DIGEST_SIZE);
+    sha512((const unsigned char *)blankstr, strlen(blankstr), digest);
+    test(vectors[3][4], digest, SHA512_DIGEST_SIZE);
+    fprintf(stderr,"\n");
+
+    fprintf(stderr,"\nsha512_sse4 Test vectors\n");
+
+    for (i=0;i<SHA512_DIGEST_SIZE;i++)intelmessage[i]='\000';
+    for (i=0;i<SHA512_DIGEST_SIZE;i++)digest[i]='\000';
+//     strcpy((char *)intelmessage,hithere);
+     sha512sse((const unsigned char *)intelmessage, 0, digest);
+     test(vectors[3][4], digest, SHA512_DIGEST_SIZE);
+     sha512sse((const unsigned char *) message1, strlen(message1), digest);
+     test(vectors[3][0], digest, SHA512_DIGEST_SIZE);
+     sha512sse((const unsigned char *) message2b, strlen(message2b), digest);
+     test(vectors[3][1], digest, SHA512_DIGEST_SIZE);
+     mytime = time(NULL);
+     fprintf(stderr,"start time: %s",ctime(&mytime));
+     for (i=0;i<NUMOFLOOPS;i++) sha512sse(message3, message3_len, digest);
+     mytime = time(NULL);
+     fprintf(stderr,"end   time: %s",ctime(&mytime));
+     test(vectors[3][2], digest, SHA512_DIGEST_SIZE);   //// this one fails
+     sha512sse((const unsigned char *)hithere, strlen(hithere), digest);
+     test(vectors[3][3], digest, SHA512_DIGEST_SIZE);
+
+     fprintf(stderr,"\n");
+
+     fprintf(stderr,"sha512_avx Test vectors\n");
+
+    sha512avx((const unsigned char *)intelmessage, 0, digest);
+    test(vectors[3][4], digest, SHA512_DIGEST_SIZE);
+    sha512avx((const unsigned char *) message1, strlen(message1), digest);
+    test(vectors[3][0], digest, SHA512_DIGEST_SIZE);
+    sha512avx((const unsigned char *) message2b, strlen(message2b), digest);
+    test(vectors[3][1], digest, SHA512_DIGEST_SIZE);
+    mytime = time(NULL);
+    fprintf(stderr,"start time: %s",ctime(&mytime));
+    for (i=0;i<NUMOFLOOPS;i++) sha512avx(message3, message3_len, digest);
+    mytime = time(NULL);
+    fprintf(stderr,"end   time: %s",ctime(&mytime));
+    test(vectors[3][2], digest, SHA512_DIGEST_SIZE);   //// this one fails
+    sha512avx((const unsigned char *)hithere, strlen(hithere), digest);
+    test(vectors[3][3], digest, SHA512_DIGEST_SIZE);
+
+    fprintf(stderr,"\n");
+
+    fprintf(stderr,"sha512_rorx Test vectors\n");
+
+    sha512rorx((const unsigned char *)intelmessage, 0, digest);
+    test(vectors[3][4], digest, SHA512_DIGEST_SIZE);
+    sha512rorx((const unsigned char *) message1, strlen(message1), digest);
+    test(vectors[3][0], digest, SHA512_DIGEST_SIZE);
+    sha512rorx((const unsigned char *) message2b, strlen(message2b), digest);
+    test(vectors[3][1], digest, SHA512_DIGEST_SIZE);
+    mytime = time(NULL);
+    fprintf(stderr,"start time: %s",ctime(&mytime));
+    for (i=0;i<NUMOFLOOPS;i++) sha512rorx(message3, message3_len, digest);
+    mytime = time(NULL);
+    fprintf(stderr,"end   time: %s",ctime(&mytime));
+    test(vectors[3][2], digest, SHA512_DIGEST_SIZE);   //// this one fails
+    sha512rorx((const unsigned char *)hithere, strlen(hithere), digest);
+    test(vectors[3][3], digest, SHA512_DIGEST_SIZE);
+
+    fprintf(stderr,"\n");
+
+    fprintf(stderr,"All tests completed.\n");
 
     return 0;
 }

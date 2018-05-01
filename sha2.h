@@ -48,12 +48,18 @@
 #define SHA2_TYPES
 typedef unsigned char uint8;
 typedef unsigned int  uint32;
+#ifdef WINDOZE
 typedef unsigned __int64 uint64;
+#else
+typedef unsigned long long uint64;
+#endif
 #endif
 
+//#ifdef WINDOZE
 #ifdef __cplusplus
 extern "C" {
 #endif
+//#endif
 
 typedef struct {
     unsigned int tot_len;
@@ -93,6 +99,8 @@ void sha384_final(sha384_ctx *ctx, unsigned char *digest);
 void sha384(const unsigned char *message, unsigned int len,
             unsigned char *digest);
 
+unsigned int myCpuInfo();
+unsigned int SetSha512Kernel ( int iSha512Kernel );
 void sha512_init(sha512_ctx *ctx);
 void sha512_update(sha512_ctx *ctx, const unsigned char *message,
                    unsigned int len);
@@ -100,9 +108,11 @@ void sha512_final(sha512_ctx *ctx, unsigned char *digest);
 void sha512(const unsigned char *message, unsigned int len,
             unsigned char *digest);
 
+//#ifdef WINDOZE
 #ifdef __cplusplus
 }
 #endif
+//#endif
 
 #endif /* !SHA2_H */
 

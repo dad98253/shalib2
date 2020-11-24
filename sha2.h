@@ -55,11 +55,9 @@ typedef unsigned long long uint64;
 #endif
 #endif
 
-//#ifdef WINDOZE
 #ifdef __cplusplus
 extern "C" {
 #endif
-//#endif
 
 typedef struct {
     unsigned int tot_len;
@@ -108,11 +106,9 @@ void sha512_final(sha512_ctx *ctx, unsigned char *digest);
 void sha512(const unsigned char *message, unsigned int len,
             unsigned char *digest);
 
-//#ifdef WINDOZE
 #ifdef __cplusplus
 }
 #endif
-//#endif
 
 #endif /* !SHA2_H */
 

@@ -1250,7 +1250,7 @@ void sha512rorx(const unsigned char *message, unsigned int len,
 
     sha512_init(&ctx);
     sha512_rorxupdate(&ctx, message, len);
-    sha512_final(&ctx, digest);
+    sha512_rorxfinal(&ctx, digest);
 }
 
 
@@ -1338,6 +1338,7 @@ SHA512/256("")
     unsigned char digest[SHA512_DIGEST_SIZE];
     unsigned char intelmessage[SHA512_DIGEST_SIZE];
     time_t mytime;
+    time_t mytime0;
     int i;
 
     message3 = (unsigned char *)malloc(message3_len);
@@ -1350,7 +1351,9 @@ SHA512/256("")
 	fprintf(stderr,"Test linux passwd hashing...\n");
 	if(doHAsh ( (char *)"Y8Kk7.cZ", (char *)"password" , 5000)) return(1);
 	fprintf(stderr,"should be:\n%s\n","$6$Y8Kk7.cZ$1vVest4bV/0WDJIe9fO7m/YpUOykmduM5IzDCE6Hj3W0WdrmEw8xP6vW4wxuCLaSPG/9wveo4NoUcBVAvxOeU0");
-return(0);
+#ifndef DOTIMING
+	return(0);
+#endif
     fprintf(stderr,"SHA-2 FIPS 180-2 Validation tests\n\n");
 #ifndef SHA512ONLY
     fprintf(stderr,"SHA-224 Test vectors\n");
@@ -1383,18 +1386,19 @@ return(0);
     test(vectors[2][2], digest, SHA384_DIGEST_SIZE);
     fprintf(stderr,"\n");
 #endif  //  SHA512ONLY
-    fprintf(stderr,"SHA-512 Test vectors\n");
+    fprintf(stderr,"SHA-512 Test vectors\nnumber of loops = %i\n",NUMOFLOOPS);
 
     sha512((const unsigned char *) message1, strlen(message1), digest);
     test(vectors[3][0], digest, SHA512_DIGEST_SIZE);
     sha512((const unsigned char *) message2b, strlen(message2b), digest);
     test(vectors[3][1], digest, SHA512_DIGEST_SIZE);
 
-    mytime = time(NULL);
-    fprintf(stderr,"start time: %s",ctime(&mytime));
+    mytime0 = time(NULL);
+    fprintf(stderr,"start time: %s",ctime(&mytime0));
     for (i=0;i<NUMOFLOOPS;i++) sha512(message3, message3_len, digest);
     mytime = time(NULL);
     fprintf(stderr,"end   time: %s",ctime(&mytime));
+    fprintf(stderr,"%lf hash/sec\n",((double) NUMOFLOOPS)/difftime(mytime,mytime0));
     test(vectors[3][2], digest, SHA512_DIGEST_SIZE);
     sha512((const unsigned char *)hithere, strlen(hithere), digest);
     test(vectors[3][3], digest, SHA512_DIGEST_SIZE);
@@ -1412,7 +1416,7 @@ return(0);
     __cpuid(b, a);
     fprintf(stderr,"The code %i gives %i, %i, %i, %i\n",a,b[0],b[1],b[2],b[3] );
   }
-#else
+#else	// WINDOZE
    unsigned int index = 0;
    unsigned int index2 = 0;
    unsigned int regs[4];
@@ -1424,16 +1428,16 @@ return(0);
     __asm__ __volatile__(
 #if defined(__x86_64__) || defined(_M_AMD64) || defined (_M_X64)
         "pushq %%rbx     \n\t" /* save %rbx */
-#else
+#else	// defined...
         "pushl %%ebx     \n\t" /* save %ebx */
-#endif
+#endif	// defined...
         "cpuid            \n\t"
         "movl %%ebx ,%[ebx]  \n\t" /* write the result into output var */
 #if defined(__x86_64__) || defined(_M_AMD64) || defined (_M_X64)
         "popq %%rbx \n\t"
-#else
+#else	// defined...
         "popl %%ebx \n\t"
-#endif
+#endif	// defined...
         : "=a"(regs[0]), [ebx] "=r"(regs[1]), "=c"(regs[2]), "=d"(regs[3])
         : "a"(index), "c"(index2));
 		if (index == 0){
@@ -1479,11 +1483,12 @@ return(0);
     test(vectors[3][0], digest, SHA512_DIGEST_SIZE);
     sha512((const unsigned char *) message2b, strlen(message2b), digest);
     test(vectors[3][1], digest, SHA512_DIGEST_SIZE);
-    mytime = time(NULL);
-    fprintf(stderr,"start time: %s",ctime(&mytime));
+    mytime0 = time(NULL);
+    fprintf(stderr,"start time: %s",ctime(&mytime0));
     for (i=0;i<NUMOFLOOPS;i++) sha512(message3, message3_len, digest);
     mytime = time(NULL);
     fprintf(stderr,"end   time: %s",ctime(&mytime));
+    fprintf(stderr,"%lf hash/sec\n",((double) NUMOFLOOPS)/difftime(mytime,mytime0));
     test(vectors[3][2], digest, SHA512_DIGEST_SIZE);
     sha512((const unsigned char *)hithere, strlen(hithere), digest);
     test(vectors[3][3], digest, SHA512_DIGEST_SIZE);
@@ -1502,11 +1507,12 @@ return(0);
      test(vectors[3][0], digest, SHA512_DIGEST_SIZE);
      sha512sse((const unsigned char *) message2b, strlen(message2b), digest);
      test(vectors[3][1], digest, SHA512_DIGEST_SIZE);
-     mytime = time(NULL);
-     fprintf(stderr,"start time: %s",ctime(&mytime));
+     mytime0 = time(NULL);
+     fprintf(stderr,"start time: %s",ctime(&mytime0));
      for (i=0;i<NUMOFLOOPS;i++) sha512sse(message3, message3_len, digest);
      mytime = time(NULL);
      fprintf(stderr,"end   time: %s",ctime(&mytime));
+     fprintf(stderr,"%lf hash/sec\n",((double) NUMOFLOOPS)/difftime(mytime,mytime0));
      test(vectors[3][2], digest, SHA512_DIGEST_SIZE);   //// this one fails
      sha512sse((const unsigned char *)hithere, strlen(hithere), digest);
      test(vectors[3][3], digest, SHA512_DIGEST_SIZE);
@@ -1521,11 +1527,12 @@ return(0);
     test(vectors[3][0], digest, SHA512_DIGEST_SIZE);
     sha512avx((const unsigned char *) message2b, strlen(message2b), digest);
     test(vectors[3][1], digest, SHA512_DIGEST_SIZE);
-    mytime = time(NULL);
-    fprintf(stderr,"start time: %s",ctime(&mytime));
+    mytime0 = time(NULL);
+    fprintf(stderr,"start time: %s",ctime(&mytime0));
     for (i=0;i<NUMOFLOOPS;i++) sha512avx(message3, message3_len, digest);
     mytime = time(NULL);
     fprintf(stderr,"end   time: %s",ctime(&mytime));
+    fprintf(stderr,"%lf hash/sec\n",((double) NUMOFLOOPS)/difftime(mytime,mytime0));
     test(vectors[3][2], digest, SHA512_DIGEST_SIZE);   //// this one fails
     sha512avx((const unsigned char *)hithere, strlen(hithere), digest);
     test(vectors[3][3], digest, SHA512_DIGEST_SIZE);
@@ -1540,11 +1547,12 @@ return(0);
     test(vectors[3][0], digest, SHA512_DIGEST_SIZE);
     sha512rorx((const unsigned char *) message2b, strlen(message2b), digest);
     test(vectors[3][1], digest, SHA512_DIGEST_SIZE);
-    mytime = time(NULL);
-    fprintf(stderr,"start time: %s",ctime(&mytime));
+    mytime0 = time(NULL);
+    fprintf(stderr,"start time: %s",ctime(&mytime0));
     for (i=0;i<NUMOFLOOPS;i++) sha512rorx(message3, message3_len, digest);
     mytime = time(NULL);
     fprintf(stderr,"end   time: %s",ctime(&mytime));
+    fprintf(stderr,"%lf hash/sec\n",((double) NUMOFLOOPS)/difftime(mytime,mytime0));
     test(vectors[3][2], digest, SHA512_DIGEST_SIZE);   //// this one fails
     sha512rorx((const unsigned char *)hithere, strlen(hithere), digest);
     test(vectors[3][3], digest, SHA512_DIGEST_SIZE);

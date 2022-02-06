@@ -85,6 +85,7 @@ int doHAsh ( char * salt, char * password , int rounds)
 			memcpy(intermediate+intermediatelen, alternatedigest, SHA512_DIGEST_SIZE);
 			intermediatelen+=SHA512_DIGEST_SIZE;
 		} else {
+			*(intermediate + intermediatelen) = '\000';
 			strcat(intermediate, password);
 			intermediatelen+=pwlen;
 		}

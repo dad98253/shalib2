@@ -41,7 +41,10 @@
 #ifdef TEST_VECTORS
 #include <stdio.h>
 #include <stdlib.h>
-#endif
+#ifdef WINDOZE
+#include <intrin.h>
+#endif  // WINDOZE
+#endif  // TEST_VECTORS
 
 #include "sha2.h"
 
@@ -1408,15 +1411,14 @@ SHA512/256("")
 
 // get couinfo
 #ifdef WINDOZE
-#include <intrin.h>
-  int b[4];
+  int b[4] = { -1 };
 
   for (int a = 0; a < 5; a++)
   {
     __cpuid(b, a);
     fprintf(stderr,"The code %i gives %i, %i, %i, %i\n",a,b[0],b[1],b[2],b[3] );
   }
-#else	// WINDOZE
+#endif	// WINDOZE
    unsigned int index = 0;
    unsigned int index2 = 0;
    unsigned int regs[4];
@@ -1425,6 +1427,7 @@ SHA512/256("")
     {
     	if (index==6)continue;
     	if (index==3)continue;
+#ifndef WINDOZE
     __asm__ __volatile__(
 #if defined(__x86_64__) || defined(_M_AMD64) || defined (_M_X64)
         "pushq %%rbx     \n\t" /* save %rbx */
@@ -1440,6 +1443,9 @@ SHA512/256("")
 #endif	// defined...
         : "=a"(regs[0]), [ebx] "=r"(regs[1]), "=c"(regs[2]), "=d"(regs[3])
         : "a"(index), "c"(index2));
+#else   // WINDOZE
+        __cpuid(regs, index);
+#endif  // WINDOZE
 		if (index == 0){
 			for (i=4; i<8; i++) {
 				fprintf(stderr,"%c" ,((char *)regs)[i]);
@@ -1470,7 +1476,7 @@ SHA512/256("")
 		}
     }
 
-#endif  // endif WINDOZE - end of cpuinfo code
+//#endif  // endif WINDOZE - end of cpuinfo code
 
     unsigned int uMyCpu = myCpuInfo();
     fprintf(stderr,"\nmyCpuInfo = %u\n",uMyCpu);

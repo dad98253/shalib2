@@ -50,10 +50,10 @@ typedef unsigned char uint8;
 typedef unsigned int  uint32;
 #ifdef WINDOZE
 typedef unsigned __int64 uint64;
-#else
+#else   // WINDOZE
 typedef unsigned long long uint64;
-#endif
-#endif
+#endif  // WINDOZE
+#endif  // SHA2_TYPES
 
 #ifdef __cplusplus
 extern "C" {

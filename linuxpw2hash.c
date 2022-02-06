@@ -134,9 +134,9 @@ int doHAsh ( char * salt, char * password , int rounds)
 	}
 //debug_dump_stuff_msg_f("final (pre shuffle)", intermediatedigest, SHA512_DIGEST_SIZE);
 
-	printf("$6$");
-	if (rounds!=5000) printf("rounds=%i$",rounds);
-	printf("%s$",salt);
+	fprintf(stderr,"$6$");
+	if (rounds!=5000) fprintf(stderr,"rounds=%i$",rounds);
+	fprintf(stderr,"%s$",salt);
 	for (i=0;i<64;i++) hash[i] = intermediatedigest[byteorder[i]];
 //debug_dump_stuff_msg_f("final (after shuffle)", hash, SHA512_DIGEST_SIZE);
 	intermediate[0]='\000';
@@ -149,7 +149,7 @@ int doHAsh ( char * salt, char * password , int rounds)
 		intermediate[Resultlen+1] = '\000';
 		Resultlen++;
 	}
-	printf("%s\n",intermediate);
+	fprintf(stderr,"%s\n",intermediate);
 
 	free(intermediate);
 	free(alternate);

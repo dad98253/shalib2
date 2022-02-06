@@ -246,7 +246,7 @@ uint64 sha512_k[80] =
              0x3c9ebe0a15c9bebci64, 0x431d67c49c100d4ci64,
              0x4cc5d4becb3e42b6i64, 0x597f299cfc657e2ai64,
              0x5fcb6fab3ad6faeci64, 0x6c44198c4a475817i64};
-#else
+#else	// WINDOZE
 uint64 sha512_k[80] =
             {0x428a2f98d728ae22, 0x7137449123ef65cd,
              0xb5c0fbcfec4d3b2f, 0xe9b5dba58189dbbc,
@@ -288,7 +288,7 @@ uint64 sha512_k[80] =
              0x3c9ebe0a15c9bebc, 0x431d67c49c100d4c,
              0x4cc5d4becb3e42b6, 0x597f299cfc657e2a,
              0x5fcb6fab3ad6faec, 0x6c44198c4a475817};
-#endif
+#endif	// WINDOZE
 
 /* SHA-256 functions */
 #ifndef SHA512ONLY
@@ -1401,7 +1401,7 @@ SHA512/256("")
     for (i=0;i<NUMOFLOOPS;i++) sha512(message3, message3_len, digest);
     mytime = time(NULL);
     fprintf(stderr,"end   time: %s",ctime(&mytime));
-    fprintf(stderr,"%lf hash/sec\n",((double) NUMOFLOOPS)/difftime(mytime,mytime0));
+    fprintf(stderr,"%0.2lf hash/sec\n",((double) NUMOFLOOPS)/difftime(mytime,mytime0));
     test(vectors[3][2], digest, SHA512_DIGEST_SIZE);
     sha512((const unsigned char *)hithere, strlen(hithere), digest);
     test(vectors[3][3], digest, SHA512_DIGEST_SIZE);
@@ -1476,7 +1476,6 @@ SHA512/256("")
 		}
     }
 
-//#endif  // endif WINDOZE - end of cpuinfo code
 
     unsigned int uMyCpu = myCpuInfo();
     fprintf(stderr,"\nmyCpuInfo = %u\n",uMyCpu);
@@ -1494,7 +1493,7 @@ SHA512/256("")
     for (i=0;i<NUMOFLOOPS;i++) sha512(message3, message3_len, digest);
     mytime = time(NULL);
     fprintf(stderr,"end   time: %s",ctime(&mytime));
-    fprintf(stderr,"%lf hash/sec\n",((double) NUMOFLOOPS)/difftime(mytime,mytime0));
+    fprintf(stderr,"%0.2lf hash/sec\n",((double) NUMOFLOOPS)/difftime(mytime,mytime0));
     test(vectors[3][2], digest, SHA512_DIGEST_SIZE);
     sha512((const unsigned char *)hithere, strlen(hithere), digest);
     test(vectors[3][3], digest, SHA512_DIGEST_SIZE);
@@ -1518,7 +1517,7 @@ SHA512/256("")
      for (i=0;i<NUMOFLOOPS;i++) sha512sse(message3, message3_len, digest);
      mytime = time(NULL);
      fprintf(stderr,"end   time: %s",ctime(&mytime));
-     fprintf(stderr,"%lf hash/sec\n",((double) NUMOFLOOPS)/difftime(mytime,mytime0));
+     fprintf(stderr,"%0.2lf hash/sec\n",((double) NUMOFLOOPS)/difftime(mytime,mytime0));
      test(vectors[3][2], digest, SHA512_DIGEST_SIZE);   //// this one fails
      sha512sse((const unsigned char *)hithere, strlen(hithere), digest);
      test(vectors[3][3], digest, SHA512_DIGEST_SIZE);
@@ -1538,7 +1537,7 @@ SHA512/256("")
     for (i=0;i<NUMOFLOOPS;i++) sha512avx(message3, message3_len, digest);
     mytime = time(NULL);
     fprintf(stderr,"end   time: %s",ctime(&mytime));
-    fprintf(stderr,"%lf hash/sec\n",((double) NUMOFLOOPS)/difftime(mytime,mytime0));
+    fprintf(stderr,"%0.2lf hash/sec\n",((double) NUMOFLOOPS)/difftime(mytime,mytime0));
     test(vectors[3][2], digest, SHA512_DIGEST_SIZE);   //// this one fails
     sha512avx((const unsigned char *)hithere, strlen(hithere), digest);
     test(vectors[3][3], digest, SHA512_DIGEST_SIZE);
@@ -1558,7 +1557,7 @@ SHA512/256("")
     for (i=0;i<NUMOFLOOPS;i++) sha512rorx(message3, message3_len, digest);
     mytime = time(NULL);
     fprintf(stderr,"end   time: %s",ctime(&mytime));
-    fprintf(stderr,"%lf hash/sec\n",((double) NUMOFLOOPS)/difftime(mytime,mytime0));
+    fprintf(stderr,"%0.2lf hash/sec\n",((double) NUMOFLOOPS)/difftime(mytime,mytime0));
     test(vectors[3][2], digest, SHA512_DIGEST_SIZE);   //// this one fails
     sha512rorx((const unsigned char *)hithere, strlen(hithere), digest);
     test(vectors[3][3], digest, SHA512_DIGEST_SIZE);

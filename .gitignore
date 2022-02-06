@@ -6,6 +6,8 @@ sources.mk
 subdir.mk
 /Debug/
 /Release/
+/.vs/
+/x64/
 *.d
 *.o
 *.a
@@ -23,3 +25,10 @@ subdir.mk
 *.plg
 vc60.*
 *.res
+UpgradeLog.htm
+UpgradeLog2.htm
+sha2.sln
+sha2.vcxproj
+sha2.vcxproj.filters
+sha2.vcxproj.user
+

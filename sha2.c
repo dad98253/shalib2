@@ -1391,9 +1391,9 @@ SHA512/256("")
 #endif  //  SHA512ONLY
     fprintf(stderr,"SHA-512 Test vectors\nnumber of loops = %i\n",NUMOFLOOPS);
 
-    sha512((const unsigned char *) message1, strlen(message1), digest);
+    sha512((const unsigned char *) message1, (unsigned int)strlen(message1), digest);
     test(vectors[3][0], digest, SHA512_DIGEST_SIZE);
-    sha512((const unsigned char *) message2b, strlen(message2b), digest);
+    sha512((const unsigned char *) message2b, (unsigned int)strlen(message2b), digest);
     test(vectors[3][1], digest, SHA512_DIGEST_SIZE);
 
     mytime0 = time(NULL);
@@ -1403,9 +1403,9 @@ SHA512/256("")
     fprintf(stderr,"end   time: %s",ctime(&mytime));
     fprintf(stderr,"%0.2lf hash/sec\n",((double) NUMOFLOOPS)/difftime(mytime,mytime0));
     test(vectors[3][2], digest, SHA512_DIGEST_SIZE);
-    sha512((const unsigned char *)hithere, strlen(hithere), digest);
+    sha512((const unsigned char *)hithere, (unsigned int)strlen(hithere), digest);
     test(vectors[3][3], digest, SHA512_DIGEST_SIZE);
-    sha512((const unsigned char *)blankstr, strlen(blankstr), digest);
+    sha512((const unsigned char *)blankstr, (unsigned int)strlen(blankstr), digest);
     test(vectors[3][4], digest, SHA512_DIGEST_SIZE);
     fprintf(stderr,"\n");
 
@@ -1484,9 +1484,9 @@ SHA512/256("")
 
     fprintf(stderr,"Enhanced SHA-512 Test vectors\n");
 
-    sha512((const unsigned char *) message1, strlen(message1), digest);
+    sha512((const unsigned char *) message1, (unsigned int)strlen(message1), digest);
     test(vectors[3][0], digest, SHA512_DIGEST_SIZE);
-    sha512((const unsigned char *) message2b, strlen(message2b), digest);
+    sha512((const unsigned char *) message2b, (unsigned int)strlen(message2b), digest);
     test(vectors[3][1], digest, SHA512_DIGEST_SIZE);
     mytime0 = time(NULL);
     fprintf(stderr,"start time: %s",ctime(&mytime0));
@@ -1495,9 +1495,9 @@ SHA512/256("")
     fprintf(stderr,"end   time: %s",ctime(&mytime));
     fprintf(stderr,"%0.2lf hash/sec\n",((double) NUMOFLOOPS)/difftime(mytime,mytime0));
     test(vectors[3][2], digest, SHA512_DIGEST_SIZE);
-    sha512((const unsigned char *)hithere, strlen(hithere), digest);
+    sha512((const unsigned char *)hithere, (unsigned int)strlen(hithere), digest);
     test(vectors[3][3], digest, SHA512_DIGEST_SIZE);
-    sha512((const unsigned char *)blankstr, strlen(blankstr), digest);
+    sha512((const unsigned char *)blankstr, (unsigned int)strlen(blankstr), digest);
     test(vectors[3][4], digest, SHA512_DIGEST_SIZE);
     fprintf(stderr,"\n");
 
@@ -1508,9 +1508,9 @@ SHA512/256("")
 //     strcpy((char *)intelmessage,hithere);
      sha512sse((const unsigned char *)intelmessage, 0, digest);
      test(vectors[3][4], digest, SHA512_DIGEST_SIZE);
-     sha512sse((const unsigned char *) message1, strlen(message1), digest);
+     sha512sse((const unsigned char *) message1, (unsigned int)strlen(message1), digest);
      test(vectors[3][0], digest, SHA512_DIGEST_SIZE);
-     sha512sse((const unsigned char *) message2b, strlen(message2b), digest);
+     sha512sse((const unsigned char *) message2b, (unsigned int)strlen(message2b), digest);
      test(vectors[3][1], digest, SHA512_DIGEST_SIZE);
      mytime0 = time(NULL);
      fprintf(stderr,"start time: %s",ctime(&mytime0));
@@ -1519,7 +1519,7 @@ SHA512/256("")
      fprintf(stderr,"end   time: %s",ctime(&mytime));
      fprintf(stderr,"%0.2lf hash/sec\n",((double) NUMOFLOOPS)/difftime(mytime,mytime0));
      test(vectors[3][2], digest, SHA512_DIGEST_SIZE);   //// this one fails
-     sha512sse((const unsigned char *)hithere, strlen(hithere), digest);
+     sha512sse((const unsigned char *)hithere, (unsigned int)strlen(hithere), digest);
      test(vectors[3][3], digest, SHA512_DIGEST_SIZE);
 
      fprintf(stderr,"\n");
@@ -1528,9 +1528,9 @@ SHA512/256("")
 
     sha512avx((const unsigned char *)intelmessage, 0, digest);
     test(vectors[3][4], digest, SHA512_DIGEST_SIZE);
-    sha512avx((const unsigned char *) message1, strlen(message1), digest);
+    sha512avx((const unsigned char *) message1, (unsigned int)strlen(message1), digest);
     test(vectors[3][0], digest, SHA512_DIGEST_SIZE);
-    sha512avx((const unsigned char *) message2b, strlen(message2b), digest);
+    sha512avx((const unsigned char *) message2b, (unsigned int)strlen(message2b), digest);
     test(vectors[3][1], digest, SHA512_DIGEST_SIZE);
     mytime0 = time(NULL);
     fprintf(stderr,"start time: %s",ctime(&mytime0));
@@ -1539,7 +1539,7 @@ SHA512/256("")
     fprintf(stderr,"end   time: %s",ctime(&mytime));
     fprintf(stderr,"%0.2lf hash/sec\n",((double) NUMOFLOOPS)/difftime(mytime,mytime0));
     test(vectors[3][2], digest, SHA512_DIGEST_SIZE);   //// this one fails
-    sha512avx((const unsigned char *)hithere, strlen(hithere), digest);
+    sha512avx((const unsigned char *)hithere, (unsigned int)strlen(hithere), digest);
     test(vectors[3][3], digest, SHA512_DIGEST_SIZE);
 
     fprintf(stderr,"\n");
@@ -1548,9 +1548,9 @@ SHA512/256("")
 
     sha512rorx((const unsigned char *)intelmessage, 0, digest);
     test(vectors[3][4], digest, SHA512_DIGEST_SIZE);
-    sha512rorx((const unsigned char *) message1, strlen(message1), digest);
+    sha512rorx((const unsigned char *) message1, (unsigned int)strlen(message1), digest);
     test(vectors[3][0], digest, SHA512_DIGEST_SIZE);
-    sha512rorx((const unsigned char *) message2b, strlen(message2b), digest);
+    sha512rorx((const unsigned char *) message2b, (unsigned int)strlen(message2b), digest);
     test(vectors[3][1], digest, SHA512_DIGEST_SIZE);
     mytime0 = time(NULL);
     fprintf(stderr,"start time: %s",ctime(&mytime0));
@@ -1559,7 +1559,7 @@ SHA512/256("")
     fprintf(stderr,"end   time: %s",ctime(&mytime));
     fprintf(stderr,"%0.2lf hash/sec\n",((double) NUMOFLOOPS)/difftime(mytime,mytime0));
     test(vectors[3][2], digest, SHA512_DIGEST_SIZE);   //// this one fails
-    sha512rorx((const unsigned char *)hithere, strlen(hithere), digest);
+    sha512rorx((const unsigned char *)hithere, (unsigned int)strlen(hithere), digest);
     test(vectors[3][3], digest, SHA512_DIGEST_SIZE);
 
     fprintf(stderr,"\n");

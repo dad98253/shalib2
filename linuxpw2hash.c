@@ -43,8 +43,8 @@ int doHAsh ( char * salt, char * password , int rounds)
     		};
 
 
-	if ( ( saltlen = strlen(salt)     ) == 0 ) return 1;
-	if ( ( pwlen   = strlen(password) ) == 0 ) return 2;
+	if ( ( saltlen = (int)strlen(salt)     ) == 0 ) return 1;
+	if ( ( pwlen   = (int)strlen(password) ) == 0 ) return 2;
 	for (i = pwlen; i > 0; i >>= 1) {
 		if ((i & 1) != 0) {
 			xtraintlen+=SHA512_DIGEST_SIZE;
@@ -68,9 +68,9 @@ int doHAsh ( char * salt, char * password , int rounds)
 	strcpy(alternate, intermediate);
 	strcat(alternate, password);
 
-	sha512((const unsigned char *) alternate, strlen(alternate), alternatedigest);
+	sha512((const unsigned char *) alternate, (unsigned int)strlen(alternate), alternatedigest);
 //debug_dump_stuff_msg_f("alternatedigest - pw/salt/pw", alternatedigest, SHA512_DIGEST_SIZE);
-	intermediatelen = strlen(intermediate);
+	intermediatelen = (int)strlen(intermediate);
 	if ( pwlen > SHA512_DIGEST_SIZE ) {
 		for (i=0;i< (pwlen / SHA512_DIGEST_SIZE);i++) {
 			memcpy(intermediate+intermediatelen, alternatedigest, SHA512_DIGEST_SIZE);
@@ -95,11 +95,11 @@ int doHAsh ( char * salt, char * password , int rounds)
 	Sfactor = 16 + (int)intermediatedigest[0];
 	Sbytesstring[0] = '\000';
 	for (i = 0; i < Sfactor; i++) strcat(Sbytesstring, salt);
-	sha512((const unsigned char *) Sbytesstring, strlen(Sbytesstring), Sbytes);
+	sha512((const unsigned char *) Sbytesstring, (unsigned int)strlen(Sbytesstring), Sbytes);
 //debug_dump_stuff_msg_f("Sbytes", Sbytes, saltlen);
 	Pbytesstring[0] = '\000';
 	for (i = 0; i < pwlen; i++) strcat(Pbytesstring, password);
-	sha512((const unsigned char *) Pbytesstring, strlen(Pbytesstring), Pbytes);
+	sha512((const unsigned char *) Pbytesstring, (unsigned int)strlen(Pbytesstring), Pbytes);
 
 //debug_dump_stuff_msg_f("Pbytes", Pbytes, pwlen);
 
@@ -239,7 +239,7 @@ int DecompressStr(char *MasterPW, char *MasterPWComp,int lenMasterPWComp, int op
 		j++;
 	}
 	MasterPW[j] = '\000';
-	lenStrOut = strlen(MasterPW);
+	lenStrOut = (int)strlen(MasterPW);
 // strip out any bogus characters
 	if ( option == 1 ) {
 		j=0;
@@ -253,7 +253,7 @@ int DecompressStr(char *MasterPW, char *MasterPWComp,int lenMasterPWComp, int op
 			}
 		}
 		MasterPW[j] = '\000';
-		lenStrOut = strlen(MasterPW);
+		lenStrOut = (int)strlen(MasterPW);
 	}
 
 	return(lenStrOut);

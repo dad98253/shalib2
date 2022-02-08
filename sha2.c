@@ -158,7 +158,7 @@ uint32 sha256_h0[8] =
             {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
              0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
 #endif // SHA512ONLY
-#ifdef WINDOZE
+#if (WINDOZE && _MSC_VER < 1500)
 #ifndef SHA512ONLY
 uint64 sha384_h0[8] =
             {0xcbbb9d5dc1059ed8i64, 0x629a292a367cd507i64,
@@ -204,7 +204,7 @@ uint32 sha256_k[64] =
              0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
              0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2};
 #endif // SHA512ONLY
-#ifdef WINDOZE
+#if (WINDOZE && _MSC_VER < 1500)
 uint64 sha512_k[80] =
             {0x428a2f98d728ae22i64, 0x7137449123ef65cdi64,
              0xb5c0fbcfec4d3b2fi64, 0xe9b5dba58189dbbci64,

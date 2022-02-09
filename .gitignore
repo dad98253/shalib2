@@ -48,4 +48,5 @@ libtool
 Makefile
 /src/.deps/
 /src/config.h.in*
+/src/config.h
 /src/stamp-h*

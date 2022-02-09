@@ -150,6 +150,20 @@ fi
 
 # check the shalib2 compile defines
 
+AC_ARG_ENABLE(test,
+  AC_HELP_STRING(
+    [--enable-test],
+    [enable timing loops @<:@default=disabled@:>@]),
+  [ sha2_test="$enableval" ],
+  [ sha2_test="no" ])
+if test "$sha2_test" = "yes"; then
+  AM_CONDITIONAL(TEST_VECTORS, true)
+  AC_DEFINE(TEST_VECTORS, 1,
+    [ Select if you want to verify correct hash calculations. ])
+else
+  AM_CONDITIONAL(TEST_VECTORS, false)
+fi
+
 AC_ARG_ENABLE(dotiming,
   AC_HELP_STRING(
     [--disable-dotiming],
@@ -159,7 +173,7 @@ AC_ARG_ENABLE(dotiming,
 if test "$sha2_dotiming" = "yes"; then
   AM_CONDITIONAL(DOTIMING, true)
   AC_DEFINE(DOTIMING, 1,
-    [ Define if you want SHA2 to print hash rate summaries to stdout. ])
+    [ Define if you want sha2 to print hash rate summaries to stdout. ])
 else
   AM_CONDITIONAL(DOTIMING, false)
 fi
@@ -187,7 +201,7 @@ AC_ARG_ENABLE(unrollloops,
 if test "$sha2_unrollloops" = "yes"; then
   AM_CONDITIONAL(UNROLLLOOPS, true)
   AC_DEFINE(UNROLLLOOPS, 1,
-    [ Define if you want to un-roll loops in shalib2. ])
+    [ Define if you want to un-roll loops. ])
 else
   AM_CONDITIONAL(UNROLLLOOPS, false)
 fi
@@ -267,6 +281,8 @@ Sha2 is now configured as follows:
   Only provide support for sha512:	$sha2_sha512only
   Perform loop un-rolling:		$sha2_unrollloops
   Include 64 bit SSE/AVX code:		$sha2_ssesupport
+  Test the hash functions:		$sha2_test
+  (Note: library not created if test is slected)
 
 
 EOF

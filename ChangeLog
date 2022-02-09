@@ -1,0 +1,138 @@
+commit 084fa7b891e1c6ed48263bd51de0c1c03fb20393
+Author: john kuras <w7og@yahoo.com>
+Date:   Tue Feb 8 03:22:27 2022 -0800
+
+    fixed nuisance warning on i64 constants with vs2019
+
+M	sha2.c
+
+commit e984cb4d43b027a67fdce7db2e8655126880220d
+Author: john kuras <w7og@yahoo.com>
+Date:	Sun Feb 6 14:02:21 2022 -0800
+
+    fixed uninitalized data bug in doHAsh
+
+M	linuxpw2hash.c
+
+commit 2a3f897208eae993a9b2a6b44efbffc828d6ce22
+Author: john kuras <w7og@yahoo.com>
+Date:	Sun Feb 6 13:29:02 2022 -0800
+
+    got rid of some windows nuisance warnings
+
+M	linuxpw2hash.c
+M	sha2.c
+
+commit d3b756aa360c42e137c7fcd08b8163953637ba1f
+Author: John Kuras <w7og@yahoo.com>
+Date:	Sun Feb 6 13:04:40 2022 -0800
+
+    made some minor print format improvements
+
+M	linuxpw2hash.c
+M	sha2.c
+
+commit 34c97167fbb299b5830b30253efad04e05d32fcb
+Author: John Kuras <w7og@yahoo.com>
+Date:	Sun Feb 6 13:03:33 2022 -0800
+
+    update gitignoe
+
+M	.gitignore
+
+commit 5009e1d7043b0821526836de2b091391e74b84c7
+Author: john kuras <w7og@yahoo.com>
+Date:	Sat Feb 5 19:23:55 2022 -0800
+
+    fix problems found regression testing on windows - note this does
+    not correctly computer linux password hash on windows
+
+M	myCpuInfo.c
+M	sha2.c
+M	sha2.h
+
+commit 74168cb265465d89cb6dab2dd7e9e29faa01dd96
+Author: john kuras <w7og@yahoo.com>
+Date:	Sat Feb 5 19:19:40 2022 -0800
+
+    update gitignore
+
+M	.gitignore
+
+commit 5142e2b1ef296df0d4f332197795d783294fb958
+Author: John Kuras <w7og@yahoo.com>
+Date:	Sat Feb 5 11:43:24 2022 -0800
+
+    added some hash rate prints
+
+M	sha2.c
+
+commit 3ba11e2969f3246564eca60f401c370a26c39ec6
+Author: John Kuras <w7og@yahoo.com>
+Date:	Mon Nov 23 22:04:22 2020 -0800
+
+    merged shalib2 vector mods into passwin version
+
+M	sha2.h
+
+commit cacd05cb49b6c23d2097e3996647c5bb54f5e025
+Author: John Kuras <w7og@yahoo.com>
+Date:	Thu Oct 25 10:09:50 2018 -0700
+
+    ignore new eclise settings
+
+A	.settings/.gitignore
+
+commit ecfb2c15dbdfc016ad3fb47dd7e08a75b2062895
+Author: John Kuras <w7og@yahoo.com>
+Date:	Tue May 1 13:22:42 2018 -0700
+
+    updated sha2 to latest version - includes refernce to intel asm
+    routines
+
+A	linuxpw2hash.c
+A	myCpuInfo.c
+M	sha2.c
+M	sha2.h
+
+commit 6f6924ddfc2565c4138547f9d6b95ae6e99400d0
+Author: John Kuras <w7og@yahoo.com>
+Date:	Tue May 1 09:22:57 2018 -0700
+
+    updated gitignore
+
+M	.gitignore
+
+commit 7c9abc3e7172e86874f2eae7330c09aa75f293a8
+Author: John Kuras <w7og@yahoo.com>
+Date:	Tue May 1 09:10:14 2018 -0700
+
+    added intel asm routines and updated gitignore
+
+A	.gitignore
+A	sha512_avx.asm
+A	sha512_avx2_rorx.asm
+A	sha512_sse4.asm
+
+commit 76c46a8ffaaf7ac5dd6a54523e256a27a1db5458
+Author: dad98253 <w7og@yahoo.com>
+Date:	Fri Apr 27 19:56:13 2018 -0700
+
+    initial file upload
+
+A	Makefile
+A	sha2.c
+A	sha2.dsp
+A	sha2.dsw
+A	sha2.h
+A	shalib.dsp
+
+commit f2becdb86d670baa4e0b1f13f09073700ac92284
+Author: dad98253 <w7og@yahoo.com>
+Date:	Fri Apr 27 18:50:38 2018 -0700
+
+    README.md
+
+    explains what the library is for
+
+A	README.md

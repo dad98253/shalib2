@@ -50,3 +50,6 @@ Makefile
 /src/config.h.in*
 /src/config.h
 /src/stamp-h*
+configure~
+src/.config.h.swp
+

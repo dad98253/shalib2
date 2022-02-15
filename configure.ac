@@ -30,7 +30,7 @@ AC_PROG_CPP
 #AC_PROG_MAKE_SET
 AC_PROG_MKDIR_P
 AM_PROG_CC_C_O
-
+AC_C_BIGENDIAN
 
 sha2_version_1=`echo $PACKAGE_VERSION | cut -d . -f 1`
 sha2_version_2=`echo $PACKAGE_VERSION | cut -d . -f 2`
@@ -134,7 +134,7 @@ fi
 AC_ARG_WITH(alloca,
   AC_HELP_STRING(
     [--without-alloca],
-    [don't use alloca  @<:@default=use@:>@]),
+    [dont use alloca  @<:@default=use@:>@]),
   [ sha2_use_alloca="$withval" ],
   [ sha2_use_alloca="yes" ])
 if test "$sha2_use_alloca" = "yes"; then
@@ -153,7 +153,7 @@ fi
 AC_ARG_ENABLE(test,
   AC_HELP_STRING(
     [--enable-test],
-    [enable timing loops @<:@default=disabled@:>@]),
+    [enable validation testing @<:@default=disabled@:>@]),
   [ sha2_test="$enableval" ],
   [ sha2_test="no" ])
 if test "$sha2_test" = "yes"; then
@@ -167,7 +167,7 @@ fi
 AC_ARG_ENABLE(dotiming,
   AC_HELP_STRING(
     [--disable-dotiming],
-    [enable timing loops @<:@default=enabled@:>@]),
+    [disable timing loops @<:@default=enabled@:>@]),
   [ sha2_dotiming="$enableval" ],
   [ sha2_dotiming="yes" ])
 if test "$sha2_dotiming" = "yes"; then

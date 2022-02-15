@@ -1350,6 +1350,11 @@ SHA512/256("")
     time_t mytime0;
     int i;
 
+#ifdef WORDS_BIGENDIAN
+    fprintf(stderr, "This machine is Big Endian!\n");
+#else
+    fprintf(stderr, "This machine is Little Endian.\n");
+#endif
     message3 = (unsigned char *)malloc(message3_len);
     if (message3 == NULL) {
         fprintf(stderr, "Can't allocate memory\n");

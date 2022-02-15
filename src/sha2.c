@@ -1353,10 +1353,13 @@ SHA512/256("")
 // the hash algorithms should work correctly on both big and little endian machines
     unsigned int edtest = 16909060;
 #ifdef WORDS_BIGENDIAN
-    fprintf(stderr, "This machine is Big Endian!\n   0x%08x\n",edtest);
+    fprintf(stderr, "This machine is Big Endian!\n");
 #else
-    fprintf(stderr, "This machine is Little Endian.\n   0x%08x\n",edtest);
+    fprintf(stderr, "This machine is Little Endian.\n");
 #endif
+    fprintf(stderr, "      0x%08x\n      0x",edtest);
+    for (int ixx=0;ixx<4;ixx++) fprintf(stderr,"%02x",*((unsigned char*)(&edtest)+ixx));
+    fprintf(stderr,"\n\n");
     message3 = (unsigned char *)malloc(message3_len);
     if (message3 == NULL) {
         fprintf(stderr, "Can't allocate memory\n");

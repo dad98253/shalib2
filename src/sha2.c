@@ -1349,11 +1349,13 @@ SHA512/256("")
     time_t mytime;
     time_t mytime0;
     int i;
-
+// note that because of the way that the PACK and UNPACK macros are defined,
+// the hash algorithms should work correctly on both big and little endian machines
+    unsigned int edtest = 16909060;
 #ifdef WORDS_BIGENDIAN
-    fprintf(stderr, "This machine is Big Endian!\n");
+    fprintf(stderr, "This machine is Big Endian!\n   0x%08x\n",edtest);
 #else
-    fprintf(stderr, "This machine is Little Endian.\n");
+    fprintf(stderr, "This machine is Little Endian.\n   0x%08x\n",edtest);
 #endif
     message3 = (unsigned char *)malloc(message3_len);
     if (message3 == NULL) {
